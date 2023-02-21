@@ -46,23 +46,26 @@ func (r *Player) RoundTrip(req *http.Request) (*http.Response, error) {
 		return r.transport.RoundTrip(req)
 	}
 	recording, err := r.cassette.FindSong(req)
+	if err == mixtape.ErrSongNotFound {
+		err = nil
+	}
+	if err != nil && r.mode == Record {
+		return nil, err
+	}
+	if recording != nil {
+		return recording.HTTPResponse()
+	}
+	if r.mode == Replay {
+		return nil, mixtape.ErrSongNotFound
+	}
+	resp, err := r.transport.RoundTrip(req)
 	if err != nil {
 		return nil, err
 	}
-	if recording == nil {
-		if r.mode == Replay {
-			return nil, mixtape.ErrSongNotFound
-		}
-		resp, err := r.transport.RoundTrip(req)
-		if err != nil {
-			return nil, err
-		}
-		recording, err = mixtape.NewSong(req, resp)
-		if err != nil {
-			return nil, err
-		}
-		r.cassette.AddSong(recording)
-		return resp, nil
+	recording, err = mixtape.NewSong(req, resp)
+	if err != nil {
+		return nil, err
 	}
+	r.cassette.AddSong(recording)
 	return recording.HTTPResponse()
 }
