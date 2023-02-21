@@ -1,0 +1,47 @@
+{
+  "songs": [
+    {
+      "id": 0,
+      "request": {
+        "Method": "GET",
+        "URL": "http://127.0.0.1:52118",
+        "Proto": "HTTP/1.1",
+        "ProtoMajor": 1,
+        "ProtoMinor": 1,
+        "Header": {},
+        "Body": "",
+        "ContentLength": 0,
+        "TransferEncoding": null,
+        "Close": false,
+        "Host": "127.0.0.1:52118",
+        "Form": null,
+        "PostForm": null,
+        "MultipartForm": null,
+        "Trailer": null,
+        "RemoteAddr": "",
+        "RequestURI": "",
+        "TLS": null
+      },
+      "response": {
+        "Status": "200 OK",
+        "StatusCode": 200,
+        "Proto": "HTTP/1.1",
+        "ProtoMajor": 1,
+        "ProtoMinor": 1,
+        "Header": {
+          "Content-Length": [
+            "0"
+          ],
+          "Date": [
+            "Tue, 21 Feb 2023 02:50:47 GMT"
+          ]
+        },
+        "Body": "",
+        "ContentLength": 0,
+        "TransferEncoding": null,
+        "Close": false,
+        "Trailer": null
+      }
+    }
+  ]
+}

@@ -8,17 +8,51 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 )
 
 type Cassette struct {
 	Name               string                             `json:"-"`
-	File               string                             `json:"-"`
-	Songs              []*Song                            `json:"recordings"`
+	FilePath           string                             `json:"-"`
+	Songs              []*Song                            `json:"songs"`
 	Comparer           func(*http.Request, *Request) bool `json:"-"`
 	nextRecordingIndex int
 	sync.RWMutex
+}
+
+func (c *Cassette) Save() error {
+	c.Lock()
+	defer c.Unlock()
+
+	dir := filepath.Dir(c.FilePath)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
+	}
+	nextId := 0
+	songs := make([]*Song, len(c.Songs))
+	for _, song := range c.Songs {
+		song.ID = nextId
+		songs[nextId] = song
+		nextId++
+	}
+	c.Songs = songs
+
+	data, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		return err
+	}
+	f, err := os.Create(c.FilePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.Write(data)
+	return err
 }
 
 func DefaultCompareFunc(r *http.Request, recording *Request) bool {
@@ -28,7 +62,7 @@ func DefaultCompareFunc(r *http.Request, recording *Request) bool {
 func New(name string) *Cassette {
 	return &Cassette{
 		Name:               name,
-		File:               name + ".json",
+		FilePath:           name + ".json",
 		nextRecordingIndex: 0,
 		Comparer:           DefaultCompareFunc,
 	}
@@ -36,7 +70,7 @@ func New(name string) *Cassette {
 
 func Load(name string) (*Cassette, error) {
 	c := New(name)
-	data, err := os.ReadFile(c.File)
+	data, err := os.ReadFile(c.FilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -234,8 +268,8 @@ func (e Error) Error() string {
 const ErrSongNotFound Error = "not found"
 
 func (c *Cassette) FindSong(r *http.Request) (*Song, error) {
-	c.RLock()
-	defer c.RUnlock()
+	c.Lock()
+	defer c.Unlock()
 	for _, song := range c.Songs {
 		if c.Comparer(r, song.Request) {
 			return song, nil
