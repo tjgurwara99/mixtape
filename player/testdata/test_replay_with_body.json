@@ -3,17 +3,17 @@
     {
       "id": 0,
       "request": {
-        "Method": "GET",
-        "URL": "http://127.0.0.1:52120",
+        "Method": "POST",
+        "URL": "http://example.com/something-here",
         "Proto": "HTTP/1.1",
         "ProtoMajor": 1,
         "ProtoMinor": 1,
         "Header": {},
-        "Body": "",
-        "ContentLength": 0,
+        "Body": "Hello, World!",
+        "ContentLength": 13,
         "TransferEncoding": null,
         "Close": false,
-        "Host": "127.0.0.1:52120",
+        "Host": "127.0.0.1:59401",
         "Form": null,
         "PostForm": null,
         "MultipartForm": null,
@@ -33,10 +33,10 @@
             "0"
           ],
           "Date": [
-            "Wed, 22 Feb 2023 22:47:03 GMT"
+            "Wed, 22 Feb 2023 21:44:37 GMT"
           ]
         },
-        "Body": "",
+        "Body": "Something here",
         "ContentLength": 0,
         "TransferEncoding": null,
         "Close": false,

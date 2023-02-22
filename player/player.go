@@ -1,7 +1,9 @@
 package player
 
 import (
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/tjgurwara99/mixtape"
 )
@@ -58,10 +60,19 @@ func (r *Player) RoundTrip(req *http.Request) (*http.Response, error) {
 	if r.mode == Replay {
 		return nil, mixtape.ErrSongNotFound
 	}
+	var body []byte
+	if req.Body != nil {
+		body, err = io.ReadAll(req.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+	req.Body = io.NopCloser(strings.NewReader(string(body)))
 	resp, err := r.transport.RoundTrip(req)
 	if err != nil {
 		return nil, err
 	}
+	req.Body = io.NopCloser(strings.NewReader(string(body)))
 	recording, err = mixtape.NewSong(req, resp)
 	if err != nil {
 		return nil, err
